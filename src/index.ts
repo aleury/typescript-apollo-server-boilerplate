@@ -19,13 +19,11 @@ const resolvers = {
     },
     Book: {
         async author(book: Book, _args: {}, { dataSources }: LibraryContext): Promise<Author | undefined> {
-            console.log('fetching the author!')
             return await dataSources.libraryAPI.getAuthor(book.authorId)
         }
     },
     Author: {
         async books(author: Author, _args: {}, { dataSources }: LibraryContext): Promise<Book[]> {
-            console.log('fetching the books!')
             return await dataSources.libraryAPI.getBooks(author.books)
         }
     }
