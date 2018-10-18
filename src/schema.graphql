@@ -1,0 +1,7 @@
+# import Book from 'books.graphql'
+# import Author from 'authors.graphql'
+
+type Query {
+    getBooks: [Book]
+    getAuthors: [Author]
+}

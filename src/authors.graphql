@@ -1,0 +1,7 @@
+# import Book from 'books.graphql'
+
+type Author {
+    id: ID!
+    name: String!
+    books: [Book]
+}
