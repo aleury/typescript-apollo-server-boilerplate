@@ -1,30 +1,30 @@
 import { ApolloServer } from 'apollo-server'
 import { importSchema } from 'graphql-import'
-import { makeExecutableSchema } from 'graphql-tools'
+import { makeExecutableSchema, IResolvers } from 'graphql-tools'
 import { LibraryAPI, Book, Author} from './api';
 
 
-interface LibraryContext {
+interface Context {
     dataSources: { libraryAPI: LibraryAPI }
 }
 
-const resolvers = {
+const resolvers: IResolvers = {
     Query: {
-        async getBooks(_root: null, _args: {}, { dataSources }: LibraryContext): Promise<Book[]> {
-            return await dataSources.libraryAPI.getBooks()
+        async getBooks(_root: null, _args: {}, ctx: Context): Promise<Book[]> {
+            return await ctx.dataSources.libraryAPI.getBooks()
         },
-        async getAuthors(_root: null, _args: {}, { dataSources }: LibraryContext): Promise<Author[]> {
-            return await dataSources.libraryAPI.getAuthors()
+        async getAuthors(_root: null, _args: {}, ctx: Context): Promise<Author[]> {
+            return await ctx.dataSources.libraryAPI.getAuthors()
         },
     },
     Book: {
-        async author(book: Book, _args: {}, { dataSources }: LibraryContext): Promise<Author | undefined> {
-            return await dataSources.libraryAPI.getAuthor(book.authorId)
+        async author(book: Book, _args: {}, ctx: Context): Promise<Author | undefined> {
+            return await ctx.dataSources.libraryAPI.getAuthor(book.authorId)
         }
     },
     Author: {
-        async books(author: Author, _args: {}, { dataSources }: LibraryContext): Promise<Book[]> {
-            return await dataSources.libraryAPI.getBooks(author.books)
+        async books(author: Author, _args: {}, ctx: Context): Promise<Book[]> {
+            return await ctx.dataSources.libraryAPI.getBooks(author.books)
         }
     }
 }
