@@ -3,12 +3,9 @@ import { importSchema } from 'graphql-import'
 import { makeExecutableSchema } from 'graphql-tools'
 import { LibraryAPI, Book, Author} from './api';
 
-interface DataSources {
-    libraryAPI: LibraryAPI
-}
 
 interface LibraryContext {
-    dataSources: DataSources
+    dataSources: { libraryAPI: LibraryAPI }
 }
 
 const resolvers = {
