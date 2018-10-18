@@ -1,67 +1,50 @@
 import { ApolloServer } from 'apollo-server'
 import { importSchema } from 'graphql-import'
 import { makeExecutableSchema } from 'graphql-tools'
-import { find, filter } from 'lodash'
+import { LibraryAPI, Book, Author} from './api';
 
-interface Book {
-    id: number
-    title: string
-    authorId: number
+interface DataSources {
+    libraryAPI: LibraryAPI
 }
 
-
-interface Author {
-    id: number
-    name: string
-    books: number[]
+interface LibraryContext {
+    dataSources: DataSources
 }
-
-const books: Book[] = [
-    {
-        id: 1,
-        title: 'Harry Potter and the Chamber of Secrets',
-        authorId: 1,
-    },
-    {
-        id: 2,
-        title: 'Jurassic Park',
-        authorId: 2,
-    },
-]
-
-const authors: Author[] = [
-    {
-        id: 1,
-        name: 'J.K. Rowling',
-        books: [1],
-    },
-    {
-        id: 2,
-        name: 'Michael Crichton',
-        books: [2],
-    }
-]
 
 const resolvers = {
     Query: {
-        getBooks: () => books,
-        getAuthors: () => authors,
+        async getBooks(_root: null, _args: {}, { dataSources }: LibraryContext): Promise<Book[]> {
+            return await dataSources.libraryAPI.getBooks()
+        },
+        async getAuthors(_root: null, _args: {}, { dataSources }: LibraryContext): Promise<Author[]> {
+            return await dataSources.libraryAPI.getAuthors()
+        },
     },
     Book: {
-        author(book: Book) {
-            return find(authors, { id: book.authorId })
+        async author(book: Book, _args: {}, { dataSources }: LibraryContext): Promise<Author | undefined> {
+            console.log('fetching the author!')
+            return await dataSources.libraryAPI.getAuthor(book.authorId)
         }
     },
     Author: {
-        books(author: Author) {
-            return filter(books, { authorId: author.id })
+        async books(author: Author, _args: {}, { dataSources }: LibraryContext): Promise<Book[]> {
+            console.log('fetching the books!')
+            return await dataSources.libraryAPI.getBooks(author.books)
         }
     }
 }
+
 const typeDefs = importSchema('./src/schema.graphql')
 const schema = makeExecutableSchema({ typeDefs, resolvers })
 
-const server = new ApolloServer({ schema });
+const server = new ApolloServer({
+    schema,
+    dataSources: () => {
+        return {
+            libraryAPI: new LibraryAPI(),
+        }
+    }
+})
 server.listen().then(({ url }) => {
     console.log(`🚀  Server ready at ${url}`)
 })
