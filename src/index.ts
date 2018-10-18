@@ -13,7 +13,7 @@ interface Book {
 interface Author {
     id: number
     name: string
-    books: Array<number>
+    books: number[]
 }
 
 const books: Book[] = [
